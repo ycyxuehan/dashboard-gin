@@ -19,14 +19,21 @@ type ResponseMessage struct {
 
 //RestfullResponse 返回restful风格
 func RestfullResponse(c *gin.Context, code int, v interface{}){
+	if code == http.StatusOK {
+		code = 0
+	}
 	resp := ResponseMessage{
 		Code: code,
 		Data: v,
 	}
-	if code != 0 {
+	if code != 0 && code != 200 {
 		resp.Message = fmt.Sprintf("%v", v)
 	}
-	c.JSON(http.StatusOK, &resp)
+	if code == 0 || code >=1000{
+		c.JSON(http.StatusOK, &resp)
+	}else {
+		c.String(code, "%v", v)
+	}
 }
 
 //ReadRequestBody 读取请求数据

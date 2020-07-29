@@ -15,6 +15,7 @@
 package plugin
 
 import (
+	"context"
 
 	pluginclientset "github.com/ycyxuehan/dashboard-gin/backend/plugin/client/clientset/versioned"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -27,7 +28,7 @@ func GetPluginSource(client pluginclientset.Interface, k8sClient kubernetes.Inte
 	if err != nil {
 		return nil, err
 	}
-	cfgMap, err := k8sClient.CoreV1().ConfigMaps(ns).Get(plugin.Spec.Source.ConfigMapRef.Name, v1.GetOptions{})
+	cfgMap, err := k8sClient.CoreV1().ConfigMaps(ns).Get(context.TODO(), plugin.Spec.Source.ConfigMapRef.Name, v1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}

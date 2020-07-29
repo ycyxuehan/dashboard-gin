@@ -15,11 +15,13 @@
 package client
 
 import (
+	"context"
 	"log"
 	"strings"
 
 	v1 "k8s.io/api/authorization/v1"
 	apiextensionsclientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -188,7 +190,7 @@ func (cm *clientManager) CanI(c *gin.Context, ssar *v1.SelfSubjectAccessReview) 
 		return false
 	}
 
-	response, err := client.AuthorizationV1().SelfSubjectAccessReviews().Create(ssar)
+	response, err := client.AuthorizationV1().SelfSubjectAccessReviews().Create(context.TODO(), ssar, metaV1.CreateOptions{})
 	if err != nil {
 		log.Println(err)
 		return false

@@ -27,7 +27,6 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	restclient "k8s.io/client-go/rest"
 	"k8s.io/client-go/rest/fake"
-	"k8s.io/client-go/util/flowcontrol"
 
 	"github.com/ycyxuehan/dashboard-gin/backend/errors"
 )
@@ -58,25 +57,20 @@ func (c *FakeRESTClient) Delete() *restclient.Request {
 		GroupVersion:         &groupVersion,
 		NegotiatedSerializer: scheme.Codecs.WithoutConversion(),
 	}
-	client , _ := restclient.NewRESTClient(&url.URL{Path: "/api/v1/"}, "", 
-		contentConfig, restclient.DefaultQPS, restclient.DefaultBurst, 
-		flowcontrol.NewFakeAlwaysRateLimiter(), fake.CreateHTTPClient(NewFakeClientFunc(c)))
-	return restclient.NewRequest(client.Client, "DELETE", &url.URL{Path: "/api/v1/"}, "", contentConfig,  restclient.Serializers{}, &restclient.URLBackoff{}, flowcontrol.NewFakeAlwaysRateLimiter(), 10)
+	return restclient.NewRequestWithClient(&url.URL{Path: "/api/v1/"}, "",
+		restclient.ClientContentConfig{
+			Negotiator: runtime.NewClientNegotiator(contentConfig.NegotiatedSerializer, groupVersion),
+		}, fake.CreateHTTPClient(NewFakeClientFunc(c))).Verb("DELETE")
 }
 
 func (c *FakeRESTClient) Put() *restclient.Request {
-	client , _ := restclient.NewRESTClient(&url.URL{Path: "/api/v1/"}, "", 
-		restclient.ContentConfig{}, restclient.DefaultQPS, restclient.DefaultBurst, 
-		flowcontrol.NewFakeAlwaysRateLimiter(), fake.CreateHTTPClient(NewFakeClientFunc(c)))
-	return restclient.NewRequest(client.Client, "DELETE", &url.URL{Path: "/api/v1/"}, "", restclient.ContentConfig{},  restclient.Serializers{}, &restclient.URLBackoff{}, flowcontrol.NewFakeAlwaysRateLimiter(), 10)
+	return restclient.NewRequestWithClient(&url.URL{Path: "/api/v1/"}, "", restclient.ClientContentConfig{}, fake.CreateHTTPClient(NewFakeClientFunc(c))).Verb("PUT")
 }
 
 func (c *FakeRESTClient) Get() *restclient.Request {
-	client , _ := restclient.NewRESTClient(&url.URL{Path: "/api/v1/"}, "", 
-		restclient.ContentConfig{}, restclient.DefaultQPS, restclient.DefaultBurst, 
-		flowcontrol.NewFakeAlwaysRateLimiter(), fake.CreateHTTPClient(NewFakeClientFunc(c)))
-	return restclient.NewRequest(client.Client, "DELETE", &url.URL{Path: "/api/v1/"}, "", restclient.ContentConfig{},  restclient.Serializers{}, &restclient.URLBackoff{}, flowcontrol.NewFakeAlwaysRateLimiter(), 10)
+	return restclient.NewRequestWithClient(&url.URL{Path: "/api/v1/"}, "", restclient.ClientContentConfig{}, fake.CreateHTTPClient(NewFakeClientFunc(c))).Verb("GET")
 }
+
 
 // Removes all quote signs that might have been added to the message.
 // Might depend on dependencies version how they are constructed.

@@ -17,48 +17,57 @@ package validation
 import (
 	"crypto/tls"
 	"net/http"
+	"net/http/httptest"
 	"net/textproto"
 	"reflect"
 	"testing"
 
-	restful "github.com/emicklei/go-restful"
-	"github.com/kubernetes/dashboard/src/app/backend/client"
+	"github.com/gin-gonic/gin"
+	"github.com/ycyxuehan/dashboard-gin/backend/client"
 )
 
 func TestValidateLoginStatus(t *testing.T) {
+	c1, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c1.Request = &http.Request{Header: http.Header(map[string][]string{
+		textproto.CanonicalMIMEHeaderKey(client.JWETokenHeader): {"test-token"},
+	})}
+	c2, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c2.Request = &http.Request{Header: http.Header(map[string][]string{
+		"Authorization": {"Bearer test-token"},
+	})}
+	c3, _ := gin.CreateTestContext(httptest.NewRecorder())
+	c3.Request = &http.Request{TLS: &tls.ConnectionState{}}
+	c4, _ := gin.CreateTestContext(httptest.NewRecorder())
+	
 	cases := []struct {
 		info     string
-		request  *restful.Request
+		request  *gin.Context
 		expected *LoginStatus
 	}{
 		{
 			"Should indicate that user is logged in with token",
-			&restful.Request{Request: &http.Request{Header: http.Header(map[string][]string{
-				textproto.CanonicalMIMEHeaderKey(client.JWETokenHeader): {"test-token"},
-			})}},
+			c1,
 			&LoginStatus{TokenPresent: true},
 		},
 		{
 			"Should indicate that user is logged in using authorization header",
-			&restful.Request{Request: &http.Request{Header: http.Header(map[string][]string{
-				"Authorization": {"Bearer test-token"},
-			})}},
+			c2,
 			&LoginStatus{HeaderPresent: true},
 		},
 		{
 			"Should indicate that https is enabled",
-			&restful.Request{Request: &http.Request{TLS: &tls.ConnectionState{}}},
+			c3,
 			&LoginStatus{HTTPSMode: true},
 		},
 		{
 			"Should indicate that user is not logged in",
-			&restful.Request{Request: &http.Request{}},
+			c4,
 			&LoginStatus{},
 		},
 	}
 
 	for _, c := range cases {
-		status := ValidateLoginStatus(c)
+		status := ValidateLoginStatus(c.request)
 
 		if !reflect.DeepEqual(status, c.expected) {
 			t.Errorf("Test Case: %s. Expected status to be: %v, but got %v.",

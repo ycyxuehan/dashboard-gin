@@ -15,6 +15,7 @@
 package client
 
 import (
+	"context"
 	"fmt"
 
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
@@ -121,7 +122,7 @@ func (verber *resourceVerber) getCRDGroupAndVersion(kind string) (info crdInfo, 
 	var crdv1 apiextensionsv1.CustomResourceDefinition
 	var crdv1beta1 apiextensionsv1beta1.CustomResourceDefinition
 
-	err = verber.apiExtensionsClient.Get().Resource("customresourcedefinitions").Name(kind).Do().Into(&crdv1)
+	err = verber.apiExtensionsClient.Get().Resource("customresourcedefinitions").Name(kind).Do(context.TODO()).Into(&crdv1)
 	if err != nil {
 		if errors.IsNotFoundError(err) {
 			return info, errors.NewInvalid(fmt.Sprintf("Unknown resource kind: %s", kind))
@@ -139,7 +140,7 @@ func (verber *resourceVerber) getCRDGroupAndVersion(kind string) (info crdInfo, 
 		return
 	}
 
-	err = verber.apiExtensionsClient.Get().Resource("customresourcedefinitions").Name(kind).Do().Into(&crdv1beta1)
+	err = verber.apiExtensionsClient.Get().Resource("customresourcedefinitions").Name(kind).Do(context.TODO()).Into(&crdv1beta1)
 	if err != nil {
 		if errors.IsNotFoundError(err) {
 			return info, errors.NewInvalid(fmt.Sprintf("Unknown resource kind: %s", kind))
@@ -190,7 +191,7 @@ func (verber *resourceVerber) Delete(kind string, namespaceSet bool, namespace s
 		req.Namespace(namespace)
 	}
 
-	return req.Do().Error()
+	return req.Do(context.TODO()).Error()
 }
 
 // Put puts new resource version of the given kind in the given namespace with the given name.
@@ -212,7 +213,7 @@ func (verber *resourceVerber) Put(kind string, namespaceSet bool, namespace stri
 		req.Namespace(namespace)
 	}
 
-	return req.Do().Error()
+	return req.Do(context.TODO()).Error()
 }
 
 // Get gets the resource of the given kind in the given namespace with the given name.
@@ -229,6 +230,6 @@ func (verber *resourceVerber) Get(kind string, namespaceSet bool, namespace stri
 		req.Namespace(namespace)
 	}
 
-	err = req.Do().Into(result)
+	err = req.Do(context.TODO()).Into(result)
 	return result, err
 }

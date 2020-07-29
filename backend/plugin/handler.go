@@ -44,7 +44,7 @@ type Handler struct {
 // to list the installed plugins and get the source code for a plugin.
 func (h *Handler) Install(r *gin.RouterGroup) {
 	g := r.Group("/plugin")
-	g.GET("/config", h.handleConfig)
+	g.GET("/", h.handleConfig) //->/config
 	g.GET("/:namespace", h.handlePluginList)
 	g.GET("/:namespace/:pluginName", h.servePluginSource)
 }

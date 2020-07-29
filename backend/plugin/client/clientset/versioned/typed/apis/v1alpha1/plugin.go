@@ -17,6 +17,7 @@
 package v1alpha1
 
 import (
+	"context"
 	"time"
 
 	v1alpha1 "github.com/ycyxuehan/dashboard-gin/backend/plugin/apis/v1alpha1"
@@ -68,7 +69,7 @@ func (c *plugins) Get( name string, options v1.GetOptions) (result *v1alpha1.Plu
 		Resource("plugins").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -85,7 +86,7 @@ func (c *plugins) List( opts v1.ListOptions) (result *v1alpha1.PluginList, err e
 		Resource("plugins").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -102,7 +103,7 @@ func (c *plugins) Watch( opts v1.ListOptions) (watch.Interface, error) {
 		Resource("plugins").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
-		Watch()
+		Watch(context.TODO())
 }
 
 // Create takes the representation of a plugin and creates it.  Returns the server's representation of the plugin, and an error, if there is any.
@@ -113,7 +114,7 @@ func (c *plugins) Create(plugin *v1alpha1.Plugin, opts v1.CreateOptions) (result
 		Resource("plugins").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(plugin).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -127,7 +128,7 @@ func (c *plugins) Update( plugin *v1alpha1.Plugin, opts v1.UpdateOptions) (resul
 		Name(plugin.Name).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(plugin).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }
@@ -139,7 +140,7 @@ func (c *plugins) Delete( name string, opts v1.DeleteOptions) error {
 		Resource("plugins").
 		Name(name).
 		Body(&opts).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -155,7 +156,7 @@ func (c *plugins) DeleteCollection( opts v1.DeleteOptions, listOpts v1.ListOptio
 		VersionedParams(&listOpts, scheme.ParameterCodec).
 		Timeout(timeout).
 		Body(&opts).
-		Do().
+		Do(context.TODO()).
 		Error()
 }
 
@@ -169,7 +170,7 @@ func (c *plugins) Patch( name string, pt types.PatchType, data []byte, opts v1.P
 		SubResource(subresources...).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Body(data).
-		Do().
+		Do(context.TODO()).
 		Into(result)
 	return
 }

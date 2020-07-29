@@ -16,6 +16,7 @@ package plugin
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,11 +62,11 @@ func TestGetPluginSource(t *testing.T) {
 		t.Errorf("error 'configmaps \"%s\" not found' did not occur", cfgMapName)
 	}
 
-	_, _ = cs.CoreV1().ConfigMaps(ns).Create( &coreV1.ConfigMap{
+	_, _ = cs.CoreV1().ConfigMaps(ns).Create(context.TODO(), &coreV1.ConfigMap{
 		ObjectMeta: v1.ObjectMeta{
 			Name: cfgMapName, Namespace: ns},
 		Data: map[string]string{filename: srcData},
-	})
+	}, metaV1.CreateOptions{})
 
 	data, err := GetPluginSource(pcs, cs, ns, pluginName)
 	if err != nil {
